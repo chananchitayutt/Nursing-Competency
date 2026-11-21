@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>แบบประเมินสมรรถนะพยาบาล | รพ.คลองท่อม</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{
+  --tq-900:#044e54;--tq-800:#0a6c74;--tq-700:#0e7c86;--tq-600:#14919b;--tq-500:#2cb1bc;
+  --tq-400:#3ebdc6;--tq-300:#81e6d9;--tq-200:#b2f5ea;--tq-100:#e6fffa;--tq-50:#f0fdfc;
+  --sky:#0ea5e9;--ink:#0f2e33;--muted:#5b7a7f;--line:#d5eeee;--card:#ffffff;--bg:#eefbfb;
+  --danger:#e11d48;--ok:#10b981;--warn:#f59e0b;
+  --shadow:0 10px 30px -12px rgba(8,92,99,.25);
+  --r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Sarabun',system-ui,sans-serif;color:var(--ink);background:var(--bg);
+  background-image:radial-gradient(circle at 10% 0%,#c9f5f2 0,transparent 40%),radial-gradient(circle at 100% 30%,#d6f0ff 0,transparent 35%);
+  min-height:100vh;line-height:1.6;font-size:16px}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* Header */
+header.top{background:linear-gradient(120deg,var(--tq-900),var(--tq-700) 45%,var(--sky));color:#fff;position:relative;overflow:hidden}
+header.top::after{content:"";position:absolute;right:-80px;top:-80px;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.08)}
+header.top::before{content:"";position:absolute;left:30%;bottom:-120px;width:240px;height:240px;border-radius:50%;background:rgba(255,255,255,.06)}
+.brand{display:flex;align-items:center;gap:14px;padding:22px 0 16px;position:relative;z-index:1}
+.logo{width:54px;height:54px;border-radius:14px;background:rgba(255,255,255,.18);display:grid;place-items:center;flex-shrink:0;border:1px solid rgba(255,255,255,.35)}
+.brand h1{font-size:clamp(18px,3.4vw,26px);font-weight:800;line-height:1.3}
+.brand p{opacity:.9;font-size:clamp(13px,2.4vw,15px)}
+nav.tabs{display:flex;gap:6px;position:relative;z-index:1;overflow-x:auto;padding-bottom:0;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{background:rgba(255,255,255,.14);border:0;color:#fff;padding:10px 18px;border-radius:12px 12px 0 0;cursor:pointer;font-weight:600;white-space:nowrap;display:flex;align-items:center;gap:8px;transition:.2s}
+.tab:hover{background:rgba(255,255,255,.25)}
+.tab.active{background:var(--bg);color:var(--tq-800)}
+.tab svg{width:18px;height:18px}
+
+main{padding:24px 0 60px}
+.view{display:none;animation:fade .35s ease}
+.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.card{background:var(--card);border-radius:var(--r);box-shadow:var(--shadow);padding:22px;margin-bottom:20px;border:1px solid var(--line)}
+.sec-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.sec-num{background:linear-gradient(135deg,var(--tq-500),var(--sky));color:#fff;font-weight:800;border-radius:10px;padding:4px 12px;font-size:14px;white-space:nowrap}
+.sec-title h2{font-size:clamp(17px,3vw,20px);color:var(--tq-900);font-weight:700}
+.hint{color:var(--muted);font-size:14px}
+
+/* Form */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.f{grid-column:span 4;display:flex;flex-direction:column;gap:6px}
+.f.s3{grid-column:span 3}.f.s6{grid-column:span 6}.f.s8{grid-column:span 8}.f.s12{grid-column:span 12}.f.s2{grid-column:span 2}
+@media(max-width:820px){.f,.f.s3,.f.s2{grid-column:span 6}.f.s6,.f.s8{grid-column:span 12}}
+@media(max-width:520px){.f,.f.s3,.f.s2,.f.s6{grid-column:span 12}}
+label.l{font-weight:600;font-size:14.5px;color:var(--tq-900)}
+label.l .req{color:var(--danger)}
+.in{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:12px;background:var(--tq-50);transition:.2s;outline:none}
+.in:focus{border-color:var(--tq-500);background:#fff;box-shadow:0 0 0 4px rgba(44,177,188,.15)}
+.in.err{border-color:var(--danger);background:#fff5f7}
+textarea.in{min-height:92px;resize:vertical}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--tq-50);cursor:pointer;font-size:14.5px;transition:.15s;user-select:none}
+.chip span:hover{border-color:var(--tq-400)}
+.chip input:checked+span{background:linear-gradient(135deg,var(--tq-600),var(--tq-500));color:#fff;border-color:transparent;box-shadow:0 4px 12px -4px rgba(20,145,155,.6)}
+.chip input:focus-visible+span{outline:3px solid var(--tq-300)}
+.chips.err span{border-color:var(--danger)}
+
+/* Scale legend */
+.legend{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.lg{border-radius:12px;padding:12px;color:#fff;text-align:center}
+.lg b{font-size:24px;display:block;line-height:1}
+.lg small{display:block;font-size:12.5px;opacity:.95;margin-top:4px;line-height:1.35}
+@media(max-width:700px){.legend{grid-template-columns:repeat(5,1fr);gap:6px}.lg small{display:none}.lg{padding:8px 4px}.lg b{font-size:20px}.lg .t{font-size:11.5px}}
+.c5{background:linear-gradient(135deg,#059669,#10b981)}.c4{background:linear-gradient(135deg,#0e9aa7,#2cb1bc)}
+.c3{background:linear-gradient(135deg,#0284c7,#38bdf8)}.c2{background:linear-gradient(135deg,#d97706,#fbbf24)}.c1{background:linear-gradient(135deg,#be123c,#fb7185)}
+
+/* Progress */
+.progress{position:sticky;top:0;z-index:20;background:rgba(238,251,251,.92);backdrop-filter:blur(8px);padding:10px 0;margin:-6px 0 14px}
+.pbar{height:10px;background:#d4efef;border-radius:99px;overflow:hidden}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--tq-500),var(--sky),#a78bfa);transition:width .35s}
+.ptext{display:flex;justify-content:space-between;font-size:13.5px;color:var(--muted);margin-bottom:6px;font-weight:600}
+
+/* Domain & Items */
+.domain{border-radius:var(--r);overflow:hidden;margin-bottom:18px;border:1px solid var(--line);background:#fff;box-shadow:var(--shadow)}
+.dhead{padding:14px 18px;color:#fff;display:flex;align-items:center;gap:12px}
+.dhead .ic{width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.22);display:grid;place-items:center;flex-shrink:0;font-size:20px}
+.dhead h3{font-size:clamp(15.5px,2.8vw,18px);font-weight:700;line-height:1.35}
+.dhead small{opacity:.9;font-size:13px}
+.item{padding:16px 18px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;transition:background .2s}
+.item.done{background:#f6fefd}
+.item.miss{background:#fff1f3}
+.item .q{display:flex;gap:10px}
+.item .no{flex-shrink:0;width:30px;height:30px;border-radius:9px;background:var(--tq-100);color:var(--tq-800);font-weight:800;display:grid;place-items:center;font-size:14px}
+.item.done .no{background:var(--tq-600);color:#fff}
+.rate{display:flex;gap:8px}
+.rb{width:52px;height:52px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font-weight:800;font-size:19px;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;transition:.15s}
+.rb small{font-size:10px;font-weight:600;margin-top:3px}
+.rb:hover{border-color:var(--tq-400);transform:translateY(-2px)}
+.rb.on{color:#fff;border-color:transparent;transform:scale(1.06);box-shadow:0 6px 14px -6px rgba(0,0,0,.45)}
+.rb.on[data-v="5"]{background:linear-gradient(135deg,#059669,#10b981)}
+.rb.on[data-v="4"]{background:linear-gradient(135deg,#0e9aa7,#2cb1bc)}
+.rb.on[data-v="3"]{background:linear-gradient(135deg,#0284c7,#38bdf8)}
+.rb.on[data-v="2"]{background:linear-gradient(135deg,#d97706,#fbbf24)}
+.rb.on[data-v="1"]{background:linear-gradient(135deg,#be123c,#fb7185)}
+@media(max-width:760px){
+  .item{grid-template-columns:1fr}
+  .rate{display:grid;grid-template-columns:repeat(5,1fr)}
+  .rb{width:100%;height:56px}
+}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:12px 20px;font-weight:700;cursor:pointer;transition:.18s;white-space:nowrap}
+.btn svg{width:18px;height:18px}
+.btn-p{background:linear-gradient(135deg,var(--tq-700),var(--tq-500));color:#fff;box-shadow:0 8px 18px -8px rgba(14,124,134,.8)}
+.btn-p:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-g{background:#fff;border:1.5px solid var(--line);color:var(--tq-800)}
+.btn-g:hover{border-color:var(--tq-400)}
+.btn-x{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff;box-shadow:0 8px 18px -8px rgba(21,128,61,.8)}
+.btn-d{background:#fff0f3;color:var(--danger);border:1.5px solid #fecdd6}
+.btn-sm{padding:7px 12px;font-size:14px;border-radius:10px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* Live score */
+.live{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.live div{background:var(--tq-50);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.live b{display:block;font-size:24px;color:var(--tq-800)}
+.live span{font-size:13px;color:var(--muted)}
+@media(max-width:520px){.live b{font-size:19px}}
+
+/* Dashboard */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+@media(max-width:960px){.kpis{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:560px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border-radius:var(--r);padding:16px;color:#fff;position:relative;overflow:hidden;box-shadow:var(--shadow)}
+.kpi::after{content:"";position:absolute;right:-24px;bottom:-24px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.15)}
+.kpi span{font-size:13.5px;opacity:.95;font-weight:600}
+.kpi b{display:block;font-size:clamp(26px,4.5vw,34px);font-weight:800;line-height:1.15;margin-top:4px}
+.kpi small{font-size:12.5px;opacity:.9}
+.k1{background:linear-gradient(135deg,#0e7c86,#2cb1bc)}.k2{background:linear-gradient(135deg,#2563eb,#60a5fa)}
+.k3{background:linear-gradient(135deg,#db2777,#f472b6)}.k4{background:linear-gradient(135deg,#7c3aed,#a78bfa)}
+.k5{background:linear-gradient(135deg,#ea580c,#fbbf24)}
+.charts{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.charts .wide{grid-column:span 2}
+@media(max-width:860px){.charts{grid-template-columns:1fr}.charts .wide{grid-column:span 1}}
+.charts .card{margin:0;min-width:0}
+.cbox canvas{max-width:100%}
+body{overflow-x:hidden}
+.chart-h{font-weight:700;color:var(--tq-900);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.cbox{position:relative;height:300px}
+.cbox.tall{height:560px}
+@media(max-width:560px){.cbox{height:260px}.cbox.tall{height:560px}}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.toolbar h2{color:var(--tq-900);font-size:clamp(19px,3.4vw,24px)}
+.badge{display:inline-block;padding:3px 10px;border-radius:99px;font-size:12.5px;font-weight:700}
+.lv5{background:#d1fae5;color:#047857}.lv4{background:#ccfbf1;color:#0f766e}.lv3{background:#e0f2fe;color:#0369a1}.lv2{background:#fef3c7;color:#b45309}.lv1{background:#ffe4e6;color:#be123c}
+.empty{text-align:center;padding:50px 20px;color:var(--muted)}
+.empty svg{width:64px;height:64px;color:var(--tq-400);margin-bottom:8px}
+
+/* table */
+.tbl-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:720px}
+th{background:var(--tq-700);color:#fff;text-align:left;padding:11px 12px;font-weight:600;white-space:nowrap}
+td{padding:10px 12px;border-top:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:var(--tq-50)}
+td.num{text-align:center;font-weight:700}
+.dtable td:first-child{font-weight:600}
+.mbar{height:8px;border-radius:99px;background:#e2f4f4;overflow:hidden;min-width:90px}
+.mbar i{display:block;height:100%;border-radius:99px}
+
+/* login */
+.login{max-width:420px;margin:30px auto}
+.login .card{padding:32px 26px}
+.login h2{text-align:center;color:var(--tq-900);margin-bottom:4px}
+.login .ic{width:70px;height:70px;border-radius:20px;margin:0 auto 14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--tq-600),var(--sky));color:#fff}
+.login form{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.msg-err{color:var(--danger);font-size:14px;text-align:center;min-height:20px}
+
+.comment{border:1px solid var(--line);border-left:5px solid var(--tq-500);border-radius:12px;padding:14px 16px;margin-bottom:12px;background:#fff}
+.comment .who{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-weight:700;color:var(--tq-900)}
+.comment .meta{font-size:13px;color:var(--muted)}
+.comment p{margin-top:6px;font-size:15px}
+.comment p b{color:var(--tq-700)}
+.search{max-width:320px}
+
+/* modal + toast */
+.modal{position:fixed;inset:0;background:rgba(4,40,45,.55);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.modal.show{display:flex}
+.modal .box{background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:90vh;overflow:auto;padding:28px;text-align:center;animation:pop .3s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:none;opacity:1}}
+.ring{width:150px;height:150px;margin:10px auto 14px;border-radius:50%;display:grid;place-items:center;position:relative}
+.ring .inner{width:118px;height:118px;border-radius:50%;background:#fff;display:grid;place-items:center;flex-direction:column}
+.ring b{font-size:34px;color:var(--tq-800);line-height:1}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--tq-900);color:#fff;padding:12px 20px;border-radius:12px;z-index:200;transition:.35s;box-shadow:var(--shadow);max-width:calc(100% - 32px);font-weight:600}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 10px;border-radius:99px;background:var(--tq-100);color:var(--tq-800);font-weight:600}
+.sync i{width:8px;height:8px;border-radius:50%;background:#94a3b8}
+.sync.on i{background:var(--ok)}
+pre.code{background:#0f2e33;color:#b2f5ea;padding:14px;border-radius:12px;overflow:auto;font-size:12.5px;text-align:left;max-height:300px;line-height:1.5}
+footer{text-align:center;color:var(--muted);font-size:13.5px;padding:20px 16px 30px}
+.hidden{display:none!important}
+.mt{margin-top:14px}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <div class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/><path d="M12 8v6M9 11h6"/></svg>
+      </div>
+      <div>
+        <h1>แบบประเมินสมรรถนะและทักษะการปฏิบัติงานของพยาบาล</h1>
+        <p>โรงพยาบาลคลองท่อม จังหวัดกระบี่ · Nursing Competency &amp; Clinical Skills Assessment</p>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab active" data-view="form">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>ทำแบบประเมิน</button>
+      <button class="tab" data-view="dash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16V9M12 16V5M17 16v-4"/></svg>Dashboard</button>
+      <button class="tab" data-view="admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>ผู้ดูแลระบบ</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ================= FORM ================= -->
+<section class="view active" id="view-form">
+<form id="assessForm" novalidate>
+
+  <div class="card">
+    <div class="sec-title"><span class="sec-num">ส่วนที่ 1</span><h2>ข้อมูลส่วนบุคคลของผู้รับการประเมิน</h2></div>
+    <div class="grid">
+      <div class="f s2"><label class="l">คำนำหน้า <span class="req">*</span></label>
+        <select class="in" name="prefix" required><option value="">เลือก</option><option>นาย</option><option>นาง</option><option>นางสาว</option><option>อื่น ๆ</option></select></div>
+      <div class="f s3"><label class="l">ชื่อ <span class="req">*</span></label><input class="in" name="fname" required autocomplete="given-name"></div>
+      <div class="f s3"><label class="l">นามสกุล <span class="req">*</span></label><input class="in" name="lname" required autocomplete="family-name"></div>
+      <div class="f s2"><label class="l">อายุ (ปี) <span class="req">*</span></label><input class="in" name="age" type="number" min="18" max="70" required inputmode="numeric"></div>
+      <div class="f s2"><label class="l">เลขที่ใบประกอบวิชาชีพ</label><input class="in" name="license" inputmode="numeric"></div>
+
+      <div class="f s6"><label class="l">เพศ <span class="req">*</span></label>
+        <div class="chips" data-name="gender">
+          <label class="chip"><input type="radio" name="gender" value="ชาย"><span>♂ ชาย</span></label>
+          <label class="chip"><input type="radio" name="gender" value="หญิง"><span>♀ หญิง</span></label>
+          <label class="chip"><input type="radio" name="gender" value="ไม่ระบุ"><span>ไม่ประสงค์ระบุ</span></label>
+        </div></div>
+      <div class="f s6"><label class="l">สถานภาพสมรส</label>
+        <div class="chips">
+          <label class="chip"><input type="radio" name="marital" value="โสด"><span>โสด</span></label>
+          <label class="chip"><input type="radio" name="marital" value="สมรส"><span>สมรส</span></label>
+          <label class="chip"><input type="radio" name="marital" value="หม้าย/หย่า/แยก"><span>หม้าย/หย่า/แยก</span></label>
+        </div></div>
+
+      <div class="f s6"><label class="l">ระดับการศึกษาสูงสุด <span class="req">*</span></label>
+        <div class="chips" data-name="education">
+          <label class="chip"><input type="radio" name="education" value="อนุปริญญา/ประกาศนียบัตร"><span>อนุปริญญา</span></label>
+          <label class="chip"><input type="radio" name="education" value="ปริญญาตรี"><span>ปริญญาตรี</span></label>
+          <label class="chip"><input type="radio" name="education" value="ปริญญาโท"><span>ปริญญาโท</span></label>
+          <label class="chip"><input type="radio" name="education" value="ปริญญาเอก"><span>ปริญญาเอก</span></label>
+        </div></div>
+      <div class="f s6"><label class="l">ประเภทการจ้าง <span class="req">*</span></label>
+        <div class="chips" data-name="employ">
+          <label class="chip"><input type="radio" name="employ" value="ข้าราชการ"><span>ข้าราชการ</span></label>
+          <label class="chip"><input type="radio" name="employ" value="พนักงานราชการ"><span>พนักงานราชการ</span></label>
+          <label class="chip"><input type="radio" name="employ" value="พนักงานกระทรวงสาธารณสุข"><span>พกส.</span></label>
+          <label class="chip"><input type="radio" name="employ" value="ลูกจ้างชั่วคราว"><span>ลูกจ้างชั่วคราว</span></label>
+        </div></div>
+
+      <div class="f s6"><label class="l">ตำแหน่ง <span class="req">*</span></label>
+        <select class="in" name="position" required>
+          <option value="">เลือกตำแหน่ง</option>
+          <option>พยาบาลวิชาชีพปฏิบัติการ</option><option>พยาบาลวิชาชีพชำนาญการ</option>
+          <option>พยาบาลวิชาชีพชำนาญการพิเศษ</option><option>พยาบาลวิชาชีพ (พนักงาน/ลูกจ้าง)</option>
+          <option>พยาบาลเทคนิค</option><option>หัวหน้าหอผู้ป่วย/หัวหน้างาน</option><option>อื่น ๆ</option>
+        </select></div>
+      <div class="f s6"><label class="l">หน่วยงาน / หอผู้ป่วย <span class="req">*</span></label>
+        <select class="in" name="dept" required>
+          <option value="">เลือกหน่วยงาน</option>
+          <option>งานอุบัติเหตุและฉุกเฉิน (ER)</option><option>งานผู้ป่วยนอก (OPD)</option>
+          <option>หอผู้ป่วยในชาย</option><option>หอผู้ป่วยในหญิง</option><option>หอผู้ป่วยในเด็ก</option>
+          <option>งานห้องคลอด (LR)</option><option>งานห้องผ่าตัด (OR)</option><option>หน่วยจ่ายกลาง/วิสัญญี</option>
+          <option>คลินิกโรคเรื้อรัง (NCD)</option><option>งานเวชปฏิบัติครอบครัวและชุมชน</option>
+          <option>งานป้องกันและควบคุมการติดเชื้อ (IC)</option><option>อื่น ๆ</option>
+        </select></div>
+
+      <div class="f s3"><label class="l">ประสบการณ์ทำงานพยาบาล (ปี) <span class="req">*</span></label><input class="in" name="exp" type="number" min="0" max="50" required inputmode="numeric"></div>
+      <div class="f s3"><label class="l">ประสบการณ์ในหน่วยงานปัจจุบัน (ปี)</label><input class="in" name="expDept" type="number" min="0" max="50" inputmode="numeric"></div>
+      <div class="f s3"><label class="l">เบอร์โทรศัพท์</label><input class="in" name="phone" type="tel" inputmode="tel" autocomplete="tel"></div>
+      <div class="f s3"><label class="l">วันที่ประเมิน <span class="req">*</span></label><input class="in" name="date" type="date" required></div>
+
+      <div class="f s12"><label class="l">การอบรมหลักสูตรเฉพาะทาง / ระยะสั้น (เลือกได้หลายข้อ)</label>
+        <div class="chips">
+          <label class="chip"><input type="checkbox" name="training" value="ACLS/BLS"><span>ACLS / BLS</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="การพยาบาลเวชปฏิบัติทั่วไป (NP)"><span>เวชปฏิบัติทั่วไป (NP)</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="การพยาบาลผู้ป่วยวิกฤต"><span>ผู้ป่วยวิกฤต</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="การพยาบาลเวชปฏิบัติฉุกเฉิน (ENP)"><span>เวชปฏิบัติฉุกเฉิน (ENP)</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="การพยาบาลผดุงครรภ์"><span>ผดุงครรภ์</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="การป้องกันและควบคุมการติดเชื้อ"><span>IC</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="การจัดการรายกรณี/โรคเรื้อรัง"><span>Case Manager / NCD</span></label>
+          <label class="chip"><input type="checkbox" name="training" value="ยังไม่เคยอบรม"><span>ยังไม่เคยอบรม</span></label>
+        </div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><span class="sec-num">ผู้ประเมิน</span><h2>ข้อมูลผู้ประเมิน</h2></div>
+    <div class="grid">
+      <div class="f s6"><label class="l">รูปแบบการประเมิน <span class="req">*</span></label>
+        <div class="chips" data-name="evalType">
+          <label class="chip"><input type="radio" name="evalType" value="ประเมินตนเอง"><span>ประเมินตนเอง</span></label>
+          <label class="chip"><input type="radio" name="evalType" value="หัวหน้างานประเมิน"><span>หัวหน้างานประเมิน</span></label>
+          <label class="chip"><input type="radio" name="evalType" value="เพื่อนร่วมงานประเมิน"><span>เพื่อนร่วมงาน</span></label>
+        </div></div>
+      <div class="f s3"><label class="l">ชื่อ-นามสกุลผู้ประเมิน <span class="req">*</span></label><input class="in" name="evaluator" required></div>
+      <div class="f s3"><label class="l">ตำแหน่งผู้ประเมิน</label><input class="in" name="evalPos"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><span class="sec-num">ส่วนที่ 2</span><h2>คำชี้แจงและมาตราส่วนประเมิน</h2></div>
+    <p class="hint" style="margin-bottom:14px">ประเมินสมรรถนะจากการสังเกตการปฏิบัติงาน การประเมินทักษะ หรือหลักฐานการทำงานจริง แตะปุ่มเลือกคะแนน 1–5 เพียงระดับเดียวต่อข้อ</p>
+    <div class="legend">
+      <div class="lg c5"><b>5</b><span class="t">ดีเยี่ยม</span><small>ถูกต้อง คล่องแคล่ว สม่ำเสมอ เป็นแบบอย่างได้</small></div>
+      <div class="lg c4"><b>4</b><span class="t">ดี</span><small>ปฏิบัติได้ถูกต้องด้วยตนเองเป็นส่วนใหญ่</small></div>
+      <div class="lg c3"><b>3</b><span class="t">ปานกลาง</span><small>ปฏิบัติได้ แต่ยังต้องได้รับคำแนะนำบางครั้ง</small></div>
+      <div class="lg c2"><b>2</b><span class="t">ควรปรับปรุง</span><small>ปฏิบัติได้บางส่วน ต้องได้รับการกำกับดูแล</small></div>
+      <div class="lg c1"><b>1</b><span class="t">เร่งด่วน</span><small>ยังไม่ได้มาตรฐาน ต้องพัฒนาอย่างใกล้ชิด</small></div>
+    </div>
+  </div>
+
+  <div class="sec-title" style="margin-top:6px"><span class="sec-num">ส่วนที่ 3</span><h2>รายการประเมิน 20 ข้อ (5 ด้าน)</h2></div>
+  <div class="progress">
+    <div class="ptext"><span id="pLabel">ตอบแล้ว 0 / 20 ข้อ</span><span id="pAvg">ค่าเฉลี่ย –</span></div>
+    <div class="pbar"><i id="pFill"></i></div>
+  </div>
+  <div id="items"></div>
+
+  <div class="card">
+    <div class="sec-title"><span class="sec-num">ส่วนที่ 4</span><h2>สรุปผลการประเมิน</h2></div>
+    <div class="live">
+      <div><b id="sTotal">0</b><span>คะแนนรวม / 100</span></div>
+      <div><b id="sAvg">0.00</b><span>คะแนนเฉลี่ย / 5.00</span></div>
+      <div><b id="sLevel" style="font-size:17px">–</b><span>การแปลผล</span></div>
+    </div>
+    <div class="tbl-wrap"><table style="min-width:0"><thead><tr><th>ช่วงคะแนนเฉลี่ย</th><th>การแปลผล</th></tr></thead><tbody>
+      <tr><td>4.51 – 5.00</td><td><span class="badge lv5">สมรรถนะระดับดีเยี่ยม</span></td></tr>
+      <tr><td>3.51 – 4.50</td><td><span class="badge lv4">สมรรถนะระดับดี</span></td></tr>
+      <tr><td>2.51 – 3.50</td><td><span class="badge lv3">สมรรถนะระดับปานกลาง</span></td></tr>
+      <tr><td>1.51 – 2.50</td><td><span class="badge lv2">สมรรถนะระดับควรปรับปรุง</span></td></tr>
+      <tr><td>1.00 – 1.50</td><td><span class="badge lv1">สมรรถนะระดับต้องปรับปรุงอย่างเร่งด่วน</span></td></tr>
+    </tbody></table></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-title"><span class="sec-num">ส่วนที่ 5</span><h2>ข้อเสนอแนะและแนวทางพัฒนา</h2></div>
+    <div class="grid">
+      <div class="f s6"><label class="l">จุดแข็ง</label><textarea class="in" name="strength"></textarea></div>
+      <div class="f s6"><label class="l">สิ่งที่ควรพัฒนา</label><textarea class="in" name="improve"></textarea></div>
+      <div class="f s12"><label class="l">ข้อเสนอแนะ / แผนพัฒนาตนเอง / ความคิดเห็นเพิ่มเติม</label><textarea class="in" name="comment"></textarea></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button type="reset" class="btn btn-g">ล้างแบบฟอร์ม</button>
+    <button type="submit" class="btn btn-p" id="btnSubmit">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>ส่งแบบประเมิน</button>
+  </div>
+</form>
+</section>
+
+<!-- ================= DASHBOARD ================= -->
+<section class="view" id="view-dash">
+  <div class="toolbar">
+    <div><h2>Dashboard สรุปผลการประเมิน</h2><span class="sync" id="syncBadge"><i></i><span>ข้อมูลในเครื่อง</span></span></div>
+    <div class="actions">
+      <select class="in" id="fDept" style="width:auto;min-width:200px"><option value="">ทุกหน่วยงาน</option></select>
+      <button class="btn btn-g" id="btnRefresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>รีเฟรช</button>
+      <button class="btn btn-x" id="btnExportSum"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>ส่งออก Excel</button>
+    </div>
+  </div>
+  <div id="dashEmpty" class="card empty hidden">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3v18h18"/><path d="M7 16V9M12 16V5M17 16v-4"/></svg>
+    <h3>ยังไม่มีข้อมูลผู้ตอบแบบประเมิน</h3><p>เมื่อมีผู้ส่งแบบประเมิน สถิติและกราฟจะแสดงที่นี่</p>
+  </div>
+  <div id="dashBody">
+    <div class="kpis">
+      <div class="kpi k1"><span>ผู้ตอบแบบประเมิน</span><b id="kTotal">0</b><small>คน</small></div>
+      <div class="kpi k2"><span>เพศชาย</span><b id="kMale">0</b><small id="kMaleP">0%</small></div>
+      <div class="kpi k3"><span>เพศหญิง</span><b id="kFemale">0</b><small id="kFemaleP">0%</small></div>
+      <div class="kpi k4"><span>ค่าเฉลี่ยภาพรวม (20 ข้อ)</span><b id="kAvg">0.00</b><small id="kLevel">–</small></div>
+      <div class="kpi k5"><span>S.D. ภาพรวม</span><b id="kSD">0.00</b><small id="kDomTop">–</small></div>
+    </div>
+    <div class="charts">
+      <div class="card wide"><div class="chart-h">ค่าเฉลี่ยสมรรถนะรายด้าน และภาพรวม<span class="hint">เต็ม 5.00</span></div><div class="cbox"><canvas id="cDomain"></canvas></div></div>
+      <div class="card"><div class="chart-h">สัดส่วนเพศของผู้ตอบ</div><div class="cbox"><canvas id="cGender"></canvas></div></div>
+      <div class="card"><div class="chart-h">ระดับสมรรถนะ (จำนวนคน)</div><div class="cbox"><canvas id="cLevel"></canvas></div></div>
+      <div class="card"><div class="chart-h">ผู้ตอบจำแนกตามหน่วยงาน</div><div class="cbox"><canvas id="cDept"></canvas></div></div>
+      <div class="card"><div class="chart-h">ผู้ตอบจำแนกตามประสบการณ์ทำงาน</div><div class="cbox"><canvas id="cExp"></canvas></div></div>
+      <div class="card wide"><div class="chart-h">ค่าเฉลี่ยรายข้อ (20 ข้อ)</div><div class="cbox tall"><canvas id="cItems"></canvas></div></div>
+      <div class="card wide">
+        <div class="chart-h">ตารางสรุปค่าเฉลี่ยรายด้าน</div>
+        <div class="tbl-wrap"><table class="dtable"><thead><tr><th>ด้านสมรรถนะ</th><th style="text-align:center">x̄</th><th style="text-align:center">S.D.</th><th>ระดับ</th><th>กราฟ</th></tr></thead><tbody id="domTable"></tbody></table></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ADMIN ================= -->
+<section class="view" id="view-admin">
+  <div class="login" id="loginBox">
+    <div class="card">
+      <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+      <h2>เข้าสู่ระบบผู้ดูแล</h2>
+      <p class="hint" style="text-align:center">สำหรับดูรายชื่อ ความคิดเห็น และจัดการข้อมูล</p>
+      <form id="loginForm" autocomplete="off">
+        <div class="f"><label class="l">ชื่อผู้ใช้</label><input class="in" id="lu" autocomplete="off"></div>
+        <div class="f"><label class="l">รหัสผ่าน</label><input class="in" id="lp" type="password" autocomplete="new-password"></div>
+        <div class="msg-err" id="lErr"></div>
+        <button class="btn btn-p" type="submit">เข้าสู่ระบบ</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="adminBox" class="hidden">
+    <div class="toolbar">
+      <h2>จัดการข้อมูลผู้ตอบแบบประเมิน</h2>
+      <div class="actions">
+        <button class="btn btn-x" id="btnExportAll"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5M12 15V3"/></svg>ส่งออก Excel (ข้อมูลทั้งหมด)</button>
+        <button class="btn btn-g" id="btnLogout">ออกจากระบบ</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="hint hidden" id="permNote" style="margin-bottom:10px"></p><div class="chart-h">รายชื่อผู้รับการประเมิน <span><input class="in search" id="q" placeholder="ค้นหาชื่อ / หน่วยงาน"></span></div>
+      <div class="tbl-wrap"><table><thead><tr><th>#</th><th>วันที่</th><th>ชื่อ-นามสกุล</th><th>เพศ</th><th>หน่วยงาน</th><th>ตำแหน่ง</th><th>ผู้ประเมิน</th><th style="text-align:center">รวม</th><th style="text-align:center">x̄</th><th>ระดับ</th><th></th></tr></thead><tbody id="listBody"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <div class="chart-h">ความคิดเห็นและข้อเสนอแนะ <span class="hint" id="cCount"></span></div>
+      <div id="comments"></div>
+    </div>
+
+    <div class="card" id="sheetCard">
+      <div class="chart-h">การเชื่อมต่อ Google Sheet (บันทึกอัตโนมัติ)<span class="sync" id="syncBadge2"><i></i><span>ยังไม่เชื่อมต่อ</span></span></div>
+      <p class="hint">วาง URL ของ Google Apps Script Web App (ลงท้ายด้วย <code>/exec</code>) ระบบจะส่งข้อมูลไปบันทึกที่ Sheet ทันทีที่มีผู้ส่งแบบประเมิน และ Dashboard จะดึงข้อมูลจาก Sheet มาแสดงจากทุกเครื่อง</p>
+      <div class="grid mt">
+        <div class="f s8"><input class="in" id="sheetUrl" placeholder="https://script.google.com/macros/s/xxxx/exec"></div>
+        <div class="f s2"><button class="btn btn-p" id="btnSaveUrl">บันทึก</button></div>
+        <div class="f s2"><button class="btn btn-g" id="btnTestUrl">ทดสอบ</button></div>
+      </div>
+      <details class="mt"><summary style="cursor:pointer;font-weight:700;color:var(--tq-800)">วิธีตั้งค่า + โค้ด Apps Script (คลิกเพื่อดู)</summary>
+        <ol style="margin:10px 0 10px 22px" class="hint">
+          <li>สร้าง Google Sheet ใหม่ → เมนู <b>ส่วนขยาย › Apps Script</b></li>
+          <li>ลบโค้ดเดิม วางโค้ดด้านล่าง แล้วกดบันทึก</li>
+          <li><b>ทำให้ใช้งานได้ › การทำให้ใช้งานได้รายการใหม่</b> › ประเภท <b>เว็บแอป</b> · ดำเนินการในฐานะ <b>ฉัน</b> · ผู้มีสิทธิ์เข้าถึง <b>ทุกคน</b></li>
+          <li>คัดลอก URL เว็บแอป มาวางในช่องด้านบน แล้วกดบันทึก (หรือใส่ไว้ในตัวแปร <code>SHEET_URL</code> ในไฟล์ HTML เพื่อให้ทุกเครื่องใช้ได้ทันที)</li>
+        </ol>
+        <pre class="code" id="gasCode"></pre>
+        <button class="btn btn-g btn-sm mt" id="btnCopyGas">คัดลอกโค้ด</button>
+      </details>
+    </div>
+
+    <div class="card">
+      <div class="chart-h">เครื่องมือ</div>
+      <div class="actions" style="justify-content:flex-start">
+        <button class="btn btn-g" id="btnDemo">เพิ่มข้อมูลตัวอย่าง 15 ชุด (ทดสอบระบบ)</button>
+        <button class="btn btn-d" id="btnClear">ลบข้อมูลทั้งหมดในเครื่องนี้</button>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>© โรงพยาบาลคลองท่อม จังหวัดกระบี่ · กลุ่มการพยาบาล<br>หมายเหตุ: แบบประเมินนี้ควรผ่านการตรวจสอบความตรงและความเชื่อมั่นก่อนใช้ประเมินบุคลากรอย่างเป็นทางการ</footer>
+
+<!-- Result modal -->
+<div class="modal" id="resModal"><div class="box">
+  <h2 style="color:var(--tq-900)">ส่งแบบประเมินเรียบร้อย ✓</h2>
+  <p class="hint" id="resName"></p>
+  <div class="ring" id="resRing"><div class="inner"><div><b id="resAvg">0.00</b><div class="hint">/ 5.00</div></div></div></div>
+  <div id="resLevel" style="margin-bottom:12px"></div>
+  <div class="tbl-wrap" style="margin-bottom:16px"><table style="min-width:0"><tbody id="resDom"></tbody></table></div>
+  <p class="hint" id="resSync" style="margin-bottom:14px"></p>
+  <div class="actions" style="justify-content:center">
+    <button class="btn btn-g" id="resDash">ดู Dashboard</button>
+    <button class="btn btn-p" id="resClose">ประเมินคนถัดไป</button>
+  </div>
+</div></div>
+
+<div class="modal" id="cfmModal"><div class="box" style="max-width:420px">
+  <h3 style="color:var(--tq-900);margin-bottom:8px">ยืนยันการลบ</h3><p class="hint" id="cfmMsg" style="margin-bottom:18px"></p>
+  <div class="actions" style="justify-content:center"><button class="btn btn-g" id="cfmNo">ยกเลิก</button><button class="btn btn-d" id="cfmYes">ลบ</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   ตั้งค่า: วาง URL ของ Google Apps Script Web App ที่นี่
+   เพื่อให้ทุกเครื่องบันทึกลง Google Sheet เดียวกันอัตโนมัติ
+   ========================================================= */
+const SHEET_URL = "";
+
+const STORE = "nkp_nurse_assess_v1";
+const CFG = "nkp_nurse_sheet_url";
+
+const DOMAINS = [
+  {id:"D1", name:"ด้านความรู้และการประเมินผู้ป่วย", icon:"📘", color:["#0e7c86","#2cb1bc"], items:[
+    "มีความรู้ทางการพยาบาลและสามารถนำความรู้มาใช้ในการดูแลผู้ป่วยได้อย่างถูกต้อง",
+    "สามารถประเมินอาการและภาวะสุขภาพของผู้ป่วยได้อย่างครอบคลุมและเหมาะสม",
+    "สามารถวางแผนการพยาบาลตามปัญหาและความต้องการของผู้ป่วยได้",
+    "สามารถประเมินผลการพยาบาลและปรับแผนการดูแลให้สอดคล้องกับอาการผู้ป่วย"]},
+  {id:"D2", name:"ด้านทักษะการปฏิบัติการพยาบาล", icon:"🩺", color:["#2563eb","#60a5fa"], items:[
+    "มีทักษะในการปฏิบัติหัตถการทางการพยาบาลอย่างถูกต้องและปลอดภัย",
+    "สามารถบริหารยาและตรวจสอบความถูกต้องตามหลักความปลอดภัยในการให้ยา",
+    "สามารถใช้และดูแลเครื่องมือ อุปกรณ์ทางการแพทย์ได้อย่างถูกต้อง",
+    "สามารถให้การพยาบาลผู้ป่วยตามมาตรฐานและแนวปฏิบัติของหน่วยงาน"]},
+  {id:"D3", name:"ด้านความปลอดภัยและการจัดการภาวะฉุกเฉิน", icon:"🚑", color:["#db2777","#f472b6"], items:[
+    "สามารถสังเกตอาการผิดปกติและตอบสนองต่อภาวะฉุกเฉินได้อย่างเหมาะสม",
+    "ปฏิบัติตามหลักการป้องกันและควบคุมการติดเชื้ออย่างสม่ำเสมอ",
+    "สามารถช่วยฟื้นคืนชีพ (CPR) และใช้อุปกรณ์ช่วยชีวิตได้อย่างถูกต้อง",
+    "ค้นหา ป้องกัน และรายงานความเสี่ยง/อุบัติการณ์ด้านความปลอดภัยของผู้ป่วยได้"]},
+  {id:"D4", name:"ด้านการสื่อสารและการทำงานเป็นทีม", icon:"🤝", color:["#7c3aed","#a78bfa"], items:[
+    "สามารถสื่อสารข้อมูลกับผู้ป่วย ญาติ และทีมสหวิชาชีพได้อย่างชัดเจน",
+    "สามารถบันทึกข้อมูลทางการพยาบาลได้อย่างถูกต้อง ครบถ้วน และทันเวลา",
+    "สามารถส่งต่อข้อมูลผู้ป่วย (Hand-off/ISBAR) ได้อย่างครบถ้วนและปลอดภัย",
+    "ทำงานร่วมกับผู้อื่นเป็นทีม ให้ความร่วมมือ และช่วยเหลือเพื่อนร่วมงาน"]},
+  {id:"D5", name:"ด้านจริยธรรมและการพัฒนาตนเอง", icon:"🌱", color:["#ea580c","#fbbf24"], items:[
+    "ปฏิบัติงานตามจริยธรรม จรรยาบรรณวิชาชีพ และคำนึงถึงสิทธิของผู้ป่วย",
+    "ให้บริการด้วยหัวใจความเป็นมนุษย์ เคารพศักดิ์ศรีและความแตกต่างของผู้รับบริการ",
+    "ให้คำแนะนำและสุขศึกษาแก่ผู้ป่วยและญาติได้อย่างเหมาะสมกับบริบท",
+    "แสวงหาความรู้ พัฒนาตนเองอย่างต่อเนื่อง และนำหลักฐานเชิงประจักษ์มาใช้ในงาน"]}
+];
+const ITEMS = []; DOMAINS.forEach(d=>d.items.forEach(t=>ITEMS.push({d:d.id,t})));
+const N = ITEMS.length;
+
+/* ---------- helpers ---------- */
+const $ = s=>document.querySelector(s), $$ = s=>[...document.querySelectorAll(s)];
+const esc = s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const mean = a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
+const sd = a=>{if(a.length<2)return 0;const m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))};
+const f2 = n=>(+n||0).toFixed(2);
+function level(m){ if(!m) return {t:"–",c:"",n:0};
+  if(m>=4.51) return {t:"ดีเยี่ยม",c:"lv5",n:5}; if(m>=3.51) return {t:"ดี",c:"lv4",n:4};
+  if(m>=2.51) return {t:"ปานกลาง",c:"lv3",n:3}; if(m>=1.51) return {t:"ควรปรับปรุง",c:"lv2",n:2};
+  return {t:"ต้องปรับปรุงเร่งด่วน",c:"lv1",n:1}; }
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2800)}
+const loadLocal = ()=>{try{return JSON.parse(localStorage.getItem(STORE))||[]}catch(e){return []}};
+const saveLocal = a=>{try{localStorage.setItem(STORE,JSON.stringify(a))}catch(e){}};
+const sheetUrl = ()=>{let u=SHEET_URL;try{u=localStorage.getItem(CFG)||SHEET_URL}catch(e){}return (u||"").trim()};
+function recScores(r){return r.scores.map(Number)}
+function recAvg(r){return mean(recScores(r))}
+function domAvg(r,di){return mean(recScores(r).slice(di*4,di*4+4))}
+
+/* ---------- tabs ---------- */
+function show(v){ $$(".tab").forEach(b=>b.classList.toggle("active",b.dataset.view===v));
+  $$(".view").forEach(s=>s.classList.toggle("active",s.id==="view-"+v));
+  if(v==="dash") renderDash(); if(v==="admin") renderAdmin(); window.scrollTo({top:0,behavior:"smooth"}); }
+$$(".tab").forEach(b=>b.onclick=()=>show(b.dataset.view));
+
+/* ---------- build items ---------- */
+const answers = Array(N).fill(0);
+(function build(){
+  let html="", k=0;
+  DOMAINS.forEach((d,di)=>{
+    html+=`<div class="domain"><div class="dhead" style="background:linear-gradient(120deg,${d.color[0]},${d.color[1]})"><div class="ic">${d.icon}</div><div><h3>ด้านที่ ${di+1} ${d.name.replace("ด้าน","")}</h3><small>ข้อ ${k+1}–${k+4}</small></div></div>`;
+    d.items.forEach(t=>{
+      html+=`<div class="item" id="it${k}"><div class="q"><span class="no">${k+1}</span><span>${t}</span></div><div class="rate">`+
+        [5,4,3,2,1].map(v=>`<button type="button" class="rb" data-i="${k}" data-v="${v}" aria-label="ข้อ ${k+1} คะแนน ${v}">${v}<small>${["","เร่งด่วน","ปรับปรุง","ปานกลาง","ดี","ดีเยี่ยม"][v]}</small></button>`).join("")+`</div></div>`;
+      k++;
+    });
+    html+=`</div>`;
+  });
+  $("#items").innerHTML=html;
+  $("#items").addEventListener("click",e=>{
+    const b=e.target.closest(".rb"); if(!b) return;
+    const i=+b.dataset.i, v=+b.dataset.v; answers[i]=v;
+    $$(`.rb[data-i="${i}"]`).forEach(x=>x.classList.toggle("on",+x.dataset.v===v));
+    const it=$("#it"+i); it.classList.add("done"); it.classList.remove("miss");
+    updateLive();
+  });
+  $("[name=date]").value=new Date().toISOString().slice(0,10);
+})();
+function updateLive(){
+  const got=answers.filter(Boolean), tot=got.reduce((a,b)=>a+b,0), avg=got.length?tot/got.length:0;
+  $("#pFill").style.width=(got.length/N*100)+"%";
+  $("#pLabel").textContent=`ตอบแล้ว ${got.length} / ${N} ข้อ`;
+  $("#pAvg").textContent=got.length?`ค่าเฉลี่ย ${f2(avg)}`:"ค่าเฉลี่ย –";
+  $("#sTotal").textContent=tot; $("#sAvg").textContent=f2(avg);
+  const L=level(got.length===N?avg:0); $("#sLevel").innerHTML=got.length===N?`<span class="badge ${L.c}">${L.t}</span>`:"ตอบให้ครบ 20 ข้อ";
+}
+
+/* ---------- submit ---------- */
+const form=$("#assessForm");
+form.addEventListener("reset",()=>{setTimeout(()=>{answers.fill(0);$$(".rb").forEach(b=>b.classList.remove("on"));$$(".item").forEach(i=>i.classList.remove("done","miss"));$$(".err").forEach(x=>x.classList.remove("err"));$("[name=date]").value=new Date().toISOString().slice(0,10);updateLive()})});
+form.addEventListener("submit",async e=>{
+  e.preventDefault();
+  $$(".err").forEach(x=>x.classList.remove("err"));
+  let firstBad=null;
+  form.querySelectorAll("[required]").forEach(el=>{if(!el.value.trim()){el.classList.add("err");firstBad=firstBad||el}});
+  ["gender","education","employ","evalType"].forEach(n=>{if(!form.querySelector(`[name=${n}]:checked`)){const c=form.querySelector(`.chips[data-name=${n}]`);c.classList.add("err");firstBad=firstBad||c}});
+  answers.forEach((v,i)=>{if(!v){$("#it"+i).classList.add("miss");firstBad=firstBad||$("#it"+i)}});
+  if(firstBad){firstBad.scrollIntoView({behavior:"smooth",block:"center"});toast("กรุณากรอกข้อมูลที่จำเป็นและตอบให้ครบทุกข้อ");return}
+
+  const fd=new FormData(form), g=n=>(fd.get(n)||"").toString().trim();
+  const rec={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),ts:new Date().toISOString(),
+    prefix:g("prefix"),fname:g("fname"),lname:g("lname"),age:g("age"),license:g("license"),gender:g("gender"),marital:g("marital"),
+    education:g("education"),employ:g("employ"),position:g("position"),dept:g("dept"),exp:g("exp"),expDept:g("expDept"),phone:g("phone"),
+    date:g("date"),training:fd.getAll("training").join(", "),evalType:g("evalType"),evaluator:g("evaluator"),evalPos:g("evalPos"),
+    scores:[...answers],strength:g("strength"),improve:g("improve"),comment:g("comment")};
+  rec.total=rec.scores.reduce((a,b)=>a+b,0); rec.avg=+f2(rec.total/N); rec.level=level(rec.avg).t;
+
+  const btn=$("#btnSubmit"); btn.disabled=true;
+  const r=await saveRecord(rec); btn.disabled=false;
+  if(!r.ok){toast("บันทึกไม่สำเร็จ: บัญชีนี้มีสิทธิ์ดูอย่างเดียว กรุณาขอสิทธิ์ผู้มีส่วนร่วมจากเจ้าของแบบประเมิน");return}
+  showResult(rec,r.synced);
+});
+
+function showResult(r,synced){
+  const L=level(r.avg);
+  $("#resName").textContent=`${r.prefix}${r.fname} ${r.lname} · ${r.dept}`;
+  $("#resAvg").textContent=f2(r.avg);
+  const pct=r.avg/5*360;
+  $("#resRing").style.background=`conic-gradient(var(--tq-500) 0deg,var(--sky) ${pct}deg,#e2f4f4 ${pct}deg)`;
+  $("#resLevel").innerHTML=`คะแนนรวม <b>${r.total}</b> / 100 &nbsp; <span class="badge ${L.c}">สมรรถนะระดับ${L.t}</span>`;
+  $("#resDom").innerHTML=DOMAINS.map((d,i)=>{const m=domAvg(r,i),l=level(m);return `<tr><td style="text-align:left">${d.icon} ${d.name}</td><td class="num">${f2(m)}</td><td><span class="badge ${l.c}">${l.t}</span></td></tr>`}).join("");
+  $("#resSync").textContent= MODE==="db"?"✓ บันทึกลงฐานข้อมูลออนไลน์เรียบร้อย": sheetUrl()? (synced?"✓ บันทึกลง Google Sheet เรียบร้อย":"⚠ บันทึกในเครื่องแล้ว แต่ส่งไป Google Sheet ไม่สำเร็จ") : "✓ บันทึกข้อมูลในระบบเรียบร้อย";
+  $("#resModal").classList.add("show");
+}
+$("#resClose").onclick=()=>{$("#resModal").classList.remove("show");form.reset();window.scrollTo({top:0,behavior:"smooth"})};
+$("#resDash").onclick=()=>{$("#resModal").classList.remove("show");form.reset();show("dash")};
+
+/* ---------- Google Sheet sync ---------- */
+const HEADERS=["ID","วันเวลาที่บันทึก","วันที่ประเมิน","คำนำหน้า","ชื่อ","นามสกุล","เพศ","อายุ","สถานภาพ","การศึกษา","ประเภทการจ้าง","ตำแหน่ง","หน่วยงาน","ประสบการณ์(ปี)","ประสบการณ์ในหน่วยงาน(ปี)","เลขใบประกอบวิชาชีพ","โทรศัพท์","การอบรม","รูปแบบการประเมิน","ผู้ประเมิน","ตำแหน่งผู้ประเมิน",
+  ...ITEMS.map((_,i)=>"ข้อ"+(i+1)),...DOMAINS.map((d,i)=>"ด้านที่"+(i+1)),"คะแนนรวม","ค่าเฉลี่ย","ระดับ","จุดแข็ง","สิ่งที่ควรพัฒนา","ข้อเสนอแนะ"];
+function toRow(r){return [r.id,new Date(r.ts).toLocaleString("th-TH"),r.date,r.prefix,r.fname,r.lname,r.gender,+r.age||r.age,r.marital,r.education,r.employ,r.position,r.dept,+r.exp||0,r.expDept===""?"":+r.expDept,r.license,r.phone,r.training,r.evalType,r.evaluator,r.evalPos,
+  ...recScores(r),...DOMAINS.map((d,i)=>+f2(domAvg(r,i))),r.total,+f2(recAvg(r)),level(recAvg(r)).t,r.strength,r.improve,r.comment]}
+async function pushSheet(rec){
+  const u=sheetUrl(); if(!u) return false;
+  try{ await fetch(u,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify({headers:[...HEADERS,"raw"],row:[...toRow(rec),JSON.stringify(rec)]})});
+    return true; }catch(e){ return false; }
+}
+let remoteCache=null;
+async function fetchRemote(){
+  const u=sheetUrl(); if(!u) return null;
+  try{ const r=await fetch(u+(u.includes("?")?"&":"?")+"action=list&t="+Date.now()); const j=await r.json();
+    if(Array.isArray(j.data)){ remoteCache=j.data.filter(x=>x&&Array.isArray(x.scores)); return remoteCache; } }catch(e){}
+  return null;
+}
+/* ---------- online shared DB (when opened as a claude.ai Artifact) ---------- */
+let MODE="local",DB=null,UID=null,CANEDIT=false,dbStats=null,dbResp=null;
+const ANON=["id","ts","date","gender","age","education","employ","position","dept","exp","expDept","evalType","scores","total","avg","level","_u"];
+(async()=>{try{
+  if(!window.claude||!claude.use) return;
+  const db=await claude.use("db"); if(!db) return;
+  const user=await claude.use("user"); UID=user?await user.id():null; CANEDIT=user?!!(await user.canEdit()):false;
+  DB=db; MODE="db"; $("#sheetCard").classList.add("hidden");
+  setSync(false,"กำลังเชื่อมต่อฐานข้อมูลออนไลน์…");
+  const t=setTimeout(()=>setSync(false,"ยังเชื่อมต่อฐานข้อมูลไม่ได้"),10000);
+  db.collection("stats").onSnapshot(s=>{if(!s.metadata.fromCache)clearTimeout(t);dbStats=s.docs.flatMap(d=>(d.data()?.records)||[]);setSync(true,`ฐานข้อมูลออนไลน์ (${dbStats.length} รายการ)`);refreshViews()},
+    e=>{clearTimeout(t);setSync(false,"เชื่อมต่อฐานข้อมูลไม่สำเร็จ")});
+  db.collection("responses").onSnapshot(s=>{dbResp=s.docs.flatMap(d=>(d.data()?.records)||[]);refreshViews()},()=>{dbResp=dbResp||[]});
+}catch(e){}})();
+function refreshViews(){if($("#view-dash").classList.contains("active"))renderDash();if($("#view-admin").classList.contains("active")&&isAdmin())renderList()}
+async function dbAppend(path,rec){const ref=DB.doc(path);const s=await ref.get();const recs=s.exists?(s.data().records||[]):[];await ref.set({records:[...recs,rec]})}
+async function dbRemove(uid,ids){for(const c of["responses","stats"]){const ref=DB.doc(c+"/"+uid);const s=await ref.get();if(!s.exists)continue;await ref.set({records:(s.data().records||[]).filter(r=>!ids.includes(r.id))})}}
+async function saveRecord(rec){
+  if(MODE!=="db"){const all=loadLocal();all.push(rec);saveLocal(all);return {ok:true,synced:await pushSheet(rec)}}
+  rec._u=UID; const a={}; ANON.forEach(k=>a[k]=rec[k]);
+  try{await dbAppend("responses/"+UID,rec);await dbAppend("stats/"+UID,a);return {ok:true,synced:true}}
+  catch(e){return {ok:false,err:e&&e.code}}
+}
+function dashData(){return MODE==="db"?[...(dbStats||[])].sort((a,b)=>a.ts<b.ts?1:-1):allData()}
+function adminData(){return MODE==="db"?[...(dbResp||[])].sort((a,b)=>a.ts<b.ts?1:-1):allData()}
+function confirmBox(msg){return new Promise(res=>{$("#cfmMsg").textContent=msg;const m=$("#cfmModal");m.classList.add("show");
+  const done=v=>{m.classList.remove("show");$("#cfmYes").onclick=$("#cfmNo").onclick=null;res(v)};$("#cfmYes").onclick=()=>done(true);$("#cfmNo").onclick=()=>done(false)})}
+async function saveFile(wb,name){
+  if(MODE==="db"){const dl=await claude.use("downloads");if(dl){const buf=XLSX.write(wb,{bookType:"xlsx",type:"array"});
+      try{await dl.save({filename:name,data:new Blob([buf])});toast("ส่งออกไฟล์ Excel เรียบร้อย")}catch(e){if(e&&e.code!=="declined")toast("ดาวน์โหลดไม่สำเร็จในหน้านี้")}return}}
+  XLSX.writeFile(wb,name);toast("ส่งออกไฟล์ Excel เรียบร้อย");
+}
+function allData(){
+  const map=new Map(); (remoteCache||[]).forEach(r=>map.set(r.id,r)); loadLocal().forEach(r=>map.set(r.id,r));
+  return [...map.values()].sort((a,b)=>a.ts<b.ts?1:-1);
+}
+function setSync(on,txt){["#syncBadge","#syncBadge2"].forEach(s=>{const b=$(s);b.classList.toggle("on",on);b.querySelector("span").textContent=txt})}
+
+/* ---------- Dashboard ---------- */
+if(window.Chart){Chart.defaults.font.family="'Sarabun',sans-serif"; Chart.defaults.font.size=13; Chart.defaults.color="#3d5f64";}
+const charts={};
+function mk(id,cfg){if(!window.Chart)return;charts[id]?.destroy(); charts[id]=new Chart(document.getElementById(id),cfg)}
+function grad(ctx,area,c1,c2,horiz){if(!area)return c1;const g=horiz?ctx.createLinearGradient(area.left,0,area.right,0):ctx.createLinearGradient(0,area.bottom,0,area.top);g.addColorStop(0,c1);g.addColorStop(1,c2);return g}
+const valLabel={id:"valLabel",afterDatasetsDraw(c,_,o){if(!o.on)return;const{ctx}=c;ctx.save();ctx.font="700 12.5px Sarabun";ctx.fillStyle="#0f2e33";
+  c.data.datasets.forEach((ds,di)=>c.getDatasetMeta(di).data.forEach((el,i)=>{const v=ds.data[i];if(v==null)return;const t=o.fmt?o.fmt(v):v;
+    if(c.options.indexAxis==="y"){ctx.textAlign="left";ctx.textBaseline="middle";ctx.fillText(t,el.x+6,el.y)}else{ctx.textAlign="center";ctx.textBaseline="bottom";ctx.fillText(t,el.x,el.y-4)}}));ctx.restore()}};
+if(window.Chart)Chart.register(valLabel);
+
+async function renderDash(force){
+  if(MODE==="db"){}
+  else if(sheetUrl() && (force||!remoteCache)){ setSync(false,"กำลังโหลดจาก Google Sheet…"); const r=await fetchRemote(); setSync(!!r, r?`เชื่อมต่อ Google Sheet (${r.length} รายการ)`:"โหลด Sheet ไม่สำเร็จ · ใช้ข้อมูลในเครื่อง"); }
+  else if(!sheetUrl()) setSync(false,"ข้อมูลในเครื่องนี้");
+  let data=dashData();
+  const sel=$("#fDept"), cur=sel.value, depts=[...new Set(data.map(r=>r.dept))].sort();
+  sel.innerHTML=`<option value="">ทุกหน่วยงาน</option>`+depts.map(d=>`<option ${d===cur?"selected":""}>${esc(d)}</option>`).join("");
+  if(cur) data=data.filter(r=>r.dept===cur);
+  const empty=!data.length; $("#dashEmpty").classList.toggle("hidden",!empty); $("#dashBody").classList.toggle("hidden",empty);
+  if(empty) return;
+
+  const n=data.length, male=data.filter(r=>r.gender==="ชาย").length, female=data.filter(r=>r.gender==="หญิง").length, other=n-male-female;
+  const allScores=data.flatMap(recScores), ovr=mean(allScores), L=level(ovr);
+  const domM=DOMAINS.map((d,i)=>mean(data.flatMap(r=>recScores(r).slice(i*4,i*4+4))));
+  const domS=DOMAINS.map((d,i)=>sd(data.flatMap(r=>recScores(r).slice(i*4,i*4+4))));
+  const itemM=ITEMS.map((_,i)=>mean(data.map(r=>+r.scores[i])));
+  const top=domM.indexOf(Math.max(...domM));
+  $("#kTotal").textContent=n; $("#kMale").textContent=male; $("#kFemale").textContent=female;
+  $("#kMaleP").textContent=(male/n*100).toFixed(1)+"%"; $("#kFemaleP").textContent=(female/n*100).toFixed(1)+"%";
+  $("#kAvg").textContent=f2(ovr); $("#kLevel").textContent="สมรรถนะระดับ"+L.t; $("#kSD").textContent=f2(sd(allScores));
+  $("#kDomTop").textContent="สูงสุด: "+DOMAINS[top].name.replace("ด้าน","");
+
+  const mob=window.innerWidth<600;
+  const shortD=DOMAINS.map((d,i)=>mob?`ด้านที่ ${i+1}`:[`ด้านที่ ${i+1}`,d.name.replace("ด้าน","")]);
+  const domColors=[...DOMAINS.map(d=>d.color),["#0f172a","#475569"]];
+  mk("cDomain",{type:"bar",data:{labels:[...shortD,mob?"ภาพรวม":["ภาพรวม","(เฉลี่ยทุกข้อ)"]],datasets:[{label:"ค่าเฉลี่ย",data:[...domM.map(v=>+f2(v)),+f2(ovr)],
+      backgroundColor:c=>grad(c.chart.ctx,c.chart.chartArea,domColors[c.dataIndex][0],domColors[c.dataIndex][1],true),borderRadius:10,barPercentage:.75}]},
+    options:{indexAxis:"y",maintainAspectRatio:false,scales:{x:{min:0,max:5,ticks:{stepSize:1},grid:{color:"#e6f4f4"}},y:{grid:{display:false},ticks:{font:{weight:600}}}},
+      plugins:{legend:{display:false},valLabel:{on:true,fmt:v=>v.toFixed(2)},tooltip:{callbacks:{label:c=>` ${c.raw.toFixed(2)} · ${level(c.raw).t}`}}}}});
+
+  mk("cGender",{type:"doughnut",data:{labels:["ชาย","หญิง","ไม่ระบุ"],datasets:[{data:[male,female,other],backgroundColor:["#3b82f6","#ec4899","#a3a3a3"],borderWidth:3,borderColor:"#fff",hoverOffset:10}]},
+    options:{maintainAspectRatio:false,cutout:"62%",plugins:{legend:{position:"bottom"},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} คน (${(c.raw/n*100).toFixed(1)}%)`}}}}});
+
+  const lvNames=["ดีเยี่ยม","ดี","ปานกลาง","ควรปรับปรุง","ต้องปรับปรุงเร่งด่วน"], lvCnt=lvNames.map(t=>data.filter(r=>level(recAvg(r)).t===t).length);
+  mk("cLevel",{type:"bar",data:{labels:lvNames,datasets:[{data:lvCnt,backgroundColor:["#10b981","#2cb1bc","#38bdf8","#fbbf24","#fb7185"],borderRadius:10}]},
+    options:{maintainAspectRatio:false,layout:{padding:{top:20}},scales:{y:{beginAtZero:true,ticks:{precision:0},grid:{color:"#e6f4f4"}},x:{grid:{display:false}}},plugins:{legend:{display:false},valLabel:{on:true}}}});
+
+  const dc={}; data.forEach(r=>dc[r.dept]=(dc[r.dept]||0)+1); const dk=Object.keys(dc).sort((a,b)=>dc[b]-dc[a]);
+  const pal=["#14919b","#3b82f6","#ec4899","#8b5cf6","#f97316","#10b981","#eab308","#06b6d4","#ef4444","#6366f1","#84cc16","#f43f5e"];
+  mk("cDept",{type:"bar",data:{labels:dk.map(x=>x.replace(/\s*\(.*\)/,"")),datasets:[{data:dk.map(k=>dc[k]),backgroundColor:dk.map((_,i)=>pal[i%pal.length]),borderRadius:8}]},
+    options:{indexAxis:"y",maintainAspectRatio:false,scales:{x:{beginAtZero:true,grace:"15%",ticks:{precision:0},grid:{color:"#e6f4f4"}},y:{grid:{display:false}}},plugins:{legend:{display:false},valLabel:{on:true}}}});
+
+  const eb=["< 5 ปี","5–10 ปี","11–20 ปี","> 20 ปี"], ec=[0,0,0,0];
+  data.forEach(r=>{const e=+r.exp||0;ec[e<5?0:e<=10?1:e<=20?2:3]++});
+  mk("cExp",{type:"polarArea",data:{labels:eb,datasets:[{data:ec,backgroundColor:["rgba(44,177,188,.8)","rgba(59,130,246,.75)","rgba(236,72,153,.75)","rgba(249,115,22,.75)"]}]},
+    options:{maintainAspectRatio:false,scales:{r:{ticks:{display:false}}},plugins:{legend:{position:"bottom"}}}});
+
+  mk("cItems",{type:"bar",data:{labels:ITEMS.map((it,i)=>mob?`ข้อ ${i+1}`:`${i+1}. ${it.t.length>42?it.t.slice(0,42)+"…":it.t}`),
+      datasets:[{data:itemM.map(v=>+f2(v)),backgroundColor:ITEMS.map(it=>DOMAINS.find(d=>d.id===it.d).color[1]),borderRadius:6,barPercentage:.8}]},
+    options:{indexAxis:"y",maintainAspectRatio:false,scales:{x:{min:0,max:5,grid:{color:"#e6f4f4"}},y:{grid:{display:false},ticks:{font:{size:window.innerWidth<560?10.5:12.5},autoSkip:false}}},
+      plugins:{legend:{display:false},valLabel:{on:true,fmt:v=>v.toFixed(2)},tooltip:{callbacks:{title:c=>ITEMS[c[0].dataIndex].t}}}}});
+
+  $("#domTable").innerHTML=DOMAINS.map((d,i)=>{const l=level(domM[i]);return `<tr><td>${d.icon} ${d.name}</td><td class="num">${f2(domM[i])}</td><td class="num">${f2(domS[i])}</td><td><span class="badge ${l.c}">${l.t}</span></td><td><div class="mbar"><i style="width:${domM[i]/5*100}%;background:linear-gradient(90deg,${d.color[0]},${d.color[1]})"></i></div></td></tr>`}).join("")+
+    `<tr><td><b>ภาพรวม (เฉลี่ยทุกข้อ)</b></td><td class="num">${f2(ovr)}</td><td class="num">${f2(sd(allScores))}</td><td><span class="badge ${L.c}">${L.t}</span></td><td><div class="mbar"><i style="width:${ovr/5*100}%;background:linear-gradient(90deg,#0f172a,#475569)"></i></div></td></tr>`;
+}
+$("#fDept").onchange=()=>renderDash();
+let _rw=window.innerWidth;window.addEventListener("resize",()=>{if((_rw<600)!==(window.innerWidth<600)&&$("#view-dash").classList.contains("active"))renderDash();_rw=window.innerWidth});
+$("#btnRefresh").onclick=()=>renderDash(true);
+
+/* ---------- Excel export ---------- */
+function summarySheets(data){
+  const allScores=data.flatMap(recScores);
+  const dom=[["ด้านสมรรถนะ","จำนวนข้อ","ค่าเฉลี่ย (x̄)","S.D.","การแปลผล"]];
+  DOMAINS.forEach((d,i)=>{const s=data.flatMap(r=>recScores(r).slice(i*4,i*4+4));dom.push([d.name,4,+f2(mean(s)),+f2(sd(s)),level(mean(s)).t])});
+  dom.push(["ภาพรวม (เฉลี่ยทุกข้อ)",N,+f2(mean(allScores)),+f2(sd(allScores)),level(mean(allScores)).t]);
+  const it=[["ข้อ","ด้าน","รายการประเมิน","ค่าเฉลี่ย (x̄)","S.D.","การแปลผล","จำนวน 5","จำนวน 4","จำนวน 3","จำนวน 2","จำนวน 1"]];
+  ITEMS.forEach((x,i)=>{const s=data.map(r=>+r.scores[i]);it.push([i+1,DOMAINS.find(d=>d.id===x.d).name,x.t,+f2(mean(s)),+f2(sd(s)),level(mean(s)).t,...[5,4,3,2,1].map(v=>s.filter(y=>y===v).length)])});
+  const n=data.length,c=g=>data.filter(r=>r.gender===g).length;
+  const demo=[["ข้อมูลทั่วไป","จำนวน (คน)","ร้อยละ"],["ผู้ตอบทั้งหมด",n,100],["เพศชาย",c("ชาย"),+(c("ชาย")/n*100).toFixed(2)],["เพศหญิง",c("หญิง"),+(c("หญิง")/n*100).toFixed(2)],["ไม่ระบุเพศ",c("ไม่ระบุ"),+(c("ไม่ระบุ")/n*100).toFixed(2)],[],["หน่วยงาน","จำนวน (คน)","ร้อยละ"]];
+  const dc={};data.forEach(r=>dc[r.dept]=(dc[r.dept]||0)+1);Object.entries(dc).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>demo.push([k,v,+(v/n*100).toFixed(2)]));
+  demo.push([],["ระดับสมรรถนะ","จำนวน (คน)","ร้อยละ"]);
+  ["ดีเยี่ยม","ดี","ปานกลาง","ควรปรับปรุง","ต้องปรับปรุงเร่งด่วน"].forEach(t=>{const v=data.filter(r=>level(recAvg(r)).t===t).length;demo.push([t,v,+(v/n*100).toFixed(2)])});
+  return {dom,it,demo};
+}
+function addSheet(wb,rows,name,widths){const ws=XLSX.utils.aoa_to_sheet(rows);if(widths)ws["!cols"]=widths.map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,name)}
+function exportExcel(full){
+  const data=full?adminData():dashData(); if(!data.length){toast("ยังไม่มีข้อมูลให้ส่งออก");return}
+  const stamp=new Date().toISOString().slice(0,10);
+  const S=summarySheets(data);
+  if(typeof XLSX==="undefined"){ // fallback CSV
+    const rows=full?[HEADERS,...data.map(toRow)]:S.dom;
+    const csv="﻿"+rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")).join("\r\n");
+    if(MODE==="db"){toast("ไม่สามารถโหลดตัวสร้าง Excel ได้");return}
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));a.download=`ผลประเมินสมรรถนะพยาบาล_${stamp}.csv`;a.click();return;
+  }
+  const wb=XLSX.utils.book_new();
+  addSheet(wb,S.dom,"สรุปรายด้าน",[40,10,14,10,24]);
+  addSheet(wb,S.it,"สรุปรายข้อ",[6,36,70,14,10,22,9,9,9,9,9]);
+  addSheet(wb,S.demo,"ข้อมูลทั่วไป",[34,14,10]);
+  if(full) addSheet(wb,[HEADERS,...data.map(toRow)],"ข้อมูลรายบุคคล",HEADERS.map(h=>Math.max(8,Math.min(30,h.length+4))));
+  saveFile(wb,`ผลประเมินสมรรถนะพยาบาล_รพ.คลองท่อม_${stamp}.xlsx`);
+}
+$("#btnExportSum").onclick=()=>exportExcel(isAdmin());
+$("#btnExportAll").onclick=()=>exportExcel(true);
+
+/* ---------- Admin ---------- */
+function h(s){let x=5381;for(const c of s)x=((x<<5)+x+c.charCodeAt(0))>>>0;return x.toString(16)}
+const isAdmin=()=>{try{return sessionStorage.getItem("nkp_admin")==="1"}catch(e){return window._adm===1}};
+$("#loginForm").onsubmit=e=>{e.preventDefault();
+  if(h($("#lu").value.trim()+":"+$("#lp").value)===h("admin:1234")){try{sessionStorage.setItem("nkp_admin","1")}catch(_){}window._adm=1;$("#lErr").textContent="";$("#lu").value=$("#lp").value="";renderAdmin()}
+  else $("#lErr").textContent="ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"};
+$("#btnLogout").onclick=()=>{try{sessionStorage.removeItem("nkp_admin")}catch(_){}window._adm=0;renderAdmin()};
+async function renderAdmin(){
+  const ok=isAdmin(); $("#loginBox").classList.toggle("hidden",ok); $("#adminBox").classList.toggle("hidden",!ok); if(!ok) return;
+  if(MODE==="db"){const n=$("#permNote");n.classList.toggle("hidden",CANEDIT);n.textContent="บัญชีของคุณไม่ใช่เจ้าของหรือผู้แก้ไขแบบประเมินนี้ จึงเห็นเฉพาะรายการที่คุณส่งเอง";renderList();return}
+  $("#sheetUrl").value=sheetUrl();
+  if(sheetUrl()&&!remoteCache){const r=await fetchRemote();setSync(!!r,r?`เชื่อมต่อแล้ว (${r.length} รายการ)`:"เชื่อมต่อไม่สำเร็จ")} else if(!sheetUrl()) setSync(false,"ยังไม่เชื่อมต่อ");
+  renderList();
+}
+function renderList(){
+  const q=$("#q").value.trim().toLowerCase(), local=new Set(MODE==="db"?adminData().filter(r=>CANEDIT||r._u===UID).map(r=>r.id):loadLocal().map(r=>r.id));
+  const data=adminData().filter(r=>!q||`${r.fname} ${r.lname} ${r.dept} ${r.evaluator}`.toLowerCase().includes(q));
+  $("#listBody").innerHTML=data.length?data.map((r,i)=>{const a=recAvg(r),l=level(a);return `<tr><td>${i+1}</td><td>${esc(r.date)}</td><td><b>${esc(r.prefix+r.fname+" "+r.lname)}</b><div class="hint">${esc(r.evalType)}</div></td><td>${esc(r.gender)}</td><td>${esc(r.dept)}</td><td>${esc(r.position)}</td><td>${esc(r.evaluator)}</td><td class="num">${r.total}</td><td class="num">${f2(a)}</td><td><span class="badge ${l.c}">${l.t}</span></td><td>${local.has(r.id)?`<button class="btn btn-d btn-sm" data-del="${r.id}">ลบ</button>`:`<span class="hint">Sheet</span>`}</td></tr>`}).join(""):`<tr><td colspan="11" class="empty">ไม่พบข้อมูล</td></tr>`;
+  const cm=adminData().filter(r=>r.strength||r.improve||r.comment);
+  $("#cCount").textContent=`${cm.length} รายการ`;
+  $("#comments").innerHTML=cm.length?cm.map(r=>`<div class="comment"><div class="who"><span>${esc(r.prefix+r.fname+" "+r.lname)}</span><span class="badge ${level(recAvg(r)).c}">x̄ ${f2(recAvg(r))}</span></div><div class="meta">${esc(r.dept)} · ผู้ประเมิน: ${esc(r.evaluator)} · ${esc(r.date)}</div>${r.strength?`<p><b>จุดแข็ง:</b> ${esc(r.strength)}</p>`:""}${r.improve?`<p><b>สิ่งที่ควรพัฒนา:</b> ${esc(r.improve)}</p>`:""}${r.comment?`<p><b>ข้อเสนอแนะ:</b> ${esc(r.comment)}</p>`:""}</div>`).join(""):`<p class="hint">ยังไม่มีความคิดเห็น</p>`;
+}
+$("#q").oninput=renderList;
+$("#listBody").onclick=async e=>{const id=e.target.dataset?.del;if(!id)return;
+  if(!await confirmBox(MODE==="db"?"ลบข้อมูลรายการนี้ออกจากฐานข้อมูลออนไลน์?":"ลบข้อมูลรายการนี้ (เฉพาะในเครื่องนี้)?"))return;
+  if(MODE==="db"){const r=adminData().find(x=>x.id===id);try{await dbRemove(r._u,[id]);toast("ลบข้อมูลแล้ว")}catch(_){toast("ลบไม่สำเร็จ: ไม่มีสิทธิ์")}return}
+  saveLocal(loadLocal().filter(r=>r.id!==id));renderList();toast("ลบข้อมูลแล้ว")};
+$("#btnClear").onclick=async()=>{
+  if(MODE==="db"){if(!await confirmBox(CANEDIT?"ลบข้อมูลทั้งหมดในฐานข้อมูลออนไลน์? ย้อนกลับไม่ได้":"ลบรายการทั้งหมดที่คุณส่งเอง?"))return;
+    try{for(const c of["responses","stats"]){const s=await DB.collection(c).get();for(const d of s.docs){if(CANEDIT||d.id===UID)await DB.doc(c+"/"+d.id).delete()}}toast("ลบข้อมูลแล้ว")}catch(_){toast("ลบไม่สำเร็จ")}return}
+  if(await confirmBox("ลบข้อมูลทั้งหมดที่เก็บในเครื่องนี้? (ข้อมูลใน Google Sheet จะไม่ถูกลบ)")){saveLocal([]);renderList();toast("ล้างข้อมูลในเครื่องแล้ว")}};
+$("#btnSaveUrl").onclick=()=>{const u=$("#sheetUrl").value.trim();try{u?localStorage.setItem(CFG,u):localStorage.removeItem(CFG)}catch(_){}remoteCache=null;toast(u?"บันทึก URL แล้ว":"ยกเลิกการเชื่อมต่อแล้ว");renderAdmin()};
+$("#btnTestUrl").onclick=async()=>{const u=$("#sheetUrl").value.trim();if(!u){toast("กรุณาวาง URL ก่อน");return}
+  try{const r=await fetch(u+(u.includes("?")?"&":"?")+"action=list");const j=await r.json();toast(`เชื่อมต่อสำเร็จ · มีข้อมูล ${(j.data||[]).length} รายการ`)}catch(e){toast("เชื่อมต่อไม่สำเร็จ ตรวจสอบ URL และสิทธิ์ 'ทุกคน'")}};
+$("#btnDemo").onclick=()=>{
+  const fn=["สมศรี","อรุณี","กมลชนก","วิภาวดี","ศิริพร","สุภาพร","ธนพล","จิราพร","นิตยา","ปิยะนุช","อนุชา","รัตนา","พรทิพย์","วรวุฒิ","ชลธิชา"],
+    ln=["ใจดี","ศรีสุข","บุญมา","พลเยี่ยม","แก้วมณี","ทองคำ","สายสุด","จันทร์หอม","มีสุข","ภูผา","ศรีคลองท่อม","คำมี","ดวงดี","ชัยชนะ","บุตรดี"],
+    dp=["งานอุบัติเหตุและฉุกเฉิน (ER)","งานผู้ป่วยนอก (OPD)","หอผู้ป่วยในชาย","หอผู้ป่วยในหญิง","งานห้องคลอด (LR)","งานห้องผ่าตัด (OR)","คลินิกโรคเรื้อรัง (NCD)"],
+    male=[6,10,13], all=[];
+  fn.forEach((f,i)=>{const base=2.8+Math.random()*2;const sc=ITEMS.map(()=>Math.max(1,Math.min(5,Math.round(base+(Math.random()*1.6-.8)))));const tot=sc.reduce((a,b)=>a+b,0);
+    all.push({id:"demo"+Date.now().toString(36)+i,ts:new Date(Date.now()-i*36e5).toISOString(),prefix:male.includes(i)?"นาย":(i%2?"นาง":"นางสาว"),fname:f,lname:ln[i],age:String(24+Math.floor(Math.random()*30)),license:"",gender:male.includes(i)?"ชาย":"หญิง",marital:"",education:i%5?"ปริญญาตรี":"ปริญญาโท",employ:i%3?"ข้าราชการ":"พนักงานกระทรวงสาธารณสุข",position:i%4?"พยาบาลวิชาชีพชำนาญการ":"พยาบาลวิชาชีพปฏิบัติการ",dept:dp[i%dp.length],exp:String(Math.floor(Math.random()*28)),expDept:"",phone:"",date:new Date().toISOString().slice(0,10),training:"ACLS/BLS",evalType:"หัวหน้างานประเมิน",evaluator:"(ข้อมูลตัวอย่าง)",evalPos:"หัวหน้าหอผู้ป่วย",scores:sc,strength:i%3===0?"มีความรับผิดชอบสูง ทำงานเป็นทีมได้ดี":"",improve:i%4===0?"ควรพัฒนาทักษะการบันทึกทางการพยาบาล":"",comment:i%5===0?"ส่งอบรมหลักสูตรการพยาบาลผู้ป่วยวิกฤต":"",total:tot,avg:+f2(tot/N),level:level(tot/N).t})});
+  if(MODE==="db"){(async()=>{try{for(const c of["responses","stats"]){const ref=DB.doc(c+"/"+UID);const s=await ref.get();const ex=s.exists?(s.data().records||[]):[];
+      await ref.set({records:[...ex,...all.map(r=>{r._u=UID;if(c==="responses")return r;const a={};ANON.forEach(k=>a[k]=r[k]);return a})]})}toast("เพิ่มข้อมูลตัวอย่าง 15 ชุดแล้ว")}catch(_){toast("เพิ่มไม่สำเร็จ: ไม่มีสิทธิ์เขียนข้อมูล")}})();return}
+  saveLocal([...loadLocal(),...all]);renderList();toast("เพิ่มข้อมูลตัวอย่าง 15 ชุดแล้ว (ลบได้ที่ปุ่มลบ)")};
+
+/* Apps Script code */
+const GAS=`// ===== Google Apps Script: บันทึกแบบประเมินสมรรถนะพยาบาล รพ.คลองท่อม =====
+const SHEET_NAME = 'ผลการประเมิน';
+
+function getSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+}
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const body = JSON.parse(e.postData.contents);
+    const sh = getSheet_();
+    if (sh.getLastRow() === 0) {
+      sh.appendRow(body.headers);
+      sh.getRange(1, 1, 1, body.headers.length)
+        .setBackground('#0e7c86').setFontColor('#ffffff').setFontWeight('bold');
+      sh.setFrozenRows(1);
+    }
+    sh.appendRow(body.row);
+    return json_({ ok: true });
+  } catch (err) {
+    return json_({ ok: false, error: String(err) });
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function doGet(e) {
+  const sh = getSheet_();
+  const values = sh.getDataRange().getValues();
+  if (values.length < 2) return json_({ ok: true, data: [] });
+  const rawCol = values[0].indexOf('raw');
+  const data = [];
+  for (let i = 1; i < values.length; i++) {
+    try { data.push(JSON.parse(values[i][rawCol])); } catch (err) {}
+  }
+  return json_({ ok: true, data: data });
+}
+
+function json_(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+$("#gasCode").textContent=GAS;
+$("#btnCopyGas").onclick=()=>{navigator.clipboard?.writeText(GAS).then(()=>toast("คัดลอกโค้ดแล้ว"),()=>toast("คัดลอกไม่สำเร็จ กรุณาเลือกข้อความเอง"))};
+
+updateLive();
+</script>
+</body>
+</html>
